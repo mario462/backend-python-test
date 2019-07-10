@@ -1,0 +1,43 @@
+[
+  {
+    "username": "user1",
+    "password": "user1",
+    "todos": [
+      {
+        "description": "Vivamus tempus"
+      },
+      {
+        "description": "lorem ac odio"
+      },
+      {
+        "description": "Ut congue odio"
+      },
+      {
+        "description": "Sodales finibus"
+      },
+      {
+        "description": "Accumsan nunc vitae"
+      }
+    ]
+  },
+  {
+    "username": "user2",
+    "password": "user2",
+    "todos": [
+      {
+        "description": "Lorem ipsum"
+      },
+      {
+        "description": "In lacinia est"
+      },
+      {
+        "description": "Odio varius gravida"
+      }
+    ]
+  },
+  {
+    "username": "user3",
+    "password": "user3",
+    "todos": []
+  }
+]

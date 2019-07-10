@@ -1,2 +1,5 @@
+# Exclude virtualenv directory from repo
+venv/
+
 *.pyc
 .idea
