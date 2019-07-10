@@ -32,12 +32,13 @@
     </div>
 </nav>
 
-{% for message in get_flashed_messages() %}
+{% for category, message in get_flashed_messages(with_categories=true) %}
     <div class="bs-example bs-example-standalone" data-example-id=dismissible-alert-js>
-    <div class="alert alert-warning alert-dismissible fade in" role=alert>
-        <button type=button class=close data-dismiss=alert aria-label=Close
-        ><span aria-hidden=true>&times;</span></button>
-        {{ message }}
+        <div class="alert alert-{{ category }} alert-dismissible fade in" role=alert>
+            <button type=button class=close data-dismiss=alert aria-label=Close
+            ><span aria-hidden=true>&times;</span></button>
+            {{ message }}
+        </div>
     </div>
 {% endfor %}
 

@@ -5,7 +5,8 @@ from flask import (
     redirect,
     render_template,
     request,
-    session
+    session,
+    flash
 )
 
 
@@ -30,8 +31,9 @@ def login_POST():
     if user:
         session['username'] = user.username
         session['user_id'] = user.id
+        flash('Successful login', 'success')
         return redirect('/todo')
-
+    flash('Invalid username or password', 'danger')
     return redirect('/login')
 
 
@@ -39,6 +41,8 @@ def login_POST():
 def logout():
     session.pop('username', None)
     session.pop('user_id', None)
+
+    flash('You were logged out', 'danger')
     return redirect('/')
 
 
@@ -48,7 +52,6 @@ def todo(id):
     return render_template('todo.html', todo=todo)
 
 
-@app.route('/todo', methods=['GET'])
 @app.route('/todo/', methods=['GET'])
 def todos():
     if not session.get('user_id'):
@@ -57,14 +60,18 @@ def todos():
     return render_template('todos.html', todos=todos)
 
 
-@app.route('/todo', methods=['POST'])
 @app.route('/todo/', methods=['POST'])
 def todos_POST():
     if not session.get('user_id'):
         return redirect('/login')
-    todo = Todo(description=request.form.get('description', ''), user_id=session['user_id'])
-    db.session.add(todo)
-    db.session.commit()
+    try:
+        todo = Todo(description=request.form.get('description', ''), user_id=session['user_id'])
+        db.session.add(todo)
+        db.session.commit()
+        flash('Todo was successfully created', 'success')
+    except AssertionError:
+        db.session.rollback()
+        flash('Todo description cannot be empty', 'danger')
     return redirect('/todo')
 
 
