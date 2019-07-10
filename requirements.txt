@@ -3,3 +3,4 @@ Jinja2
 docopt
 Flask-SQLAlchemy
 Flask-Migrate
+faker

@@ -67,14 +67,14 @@ def logout():
 @app.route('/todo/<id>', methods=['GET'])
 @require_login
 def todo(id):
-    todo = Todo.query.get(id)
+    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
     return render_template('todo.html', todo=todo)
 
 
 @app.route('/todo/', methods=['GET'])
 @require_login
 def todos():
-    todos = Todo.query.all()
+    todos = db.session.query(Todo).filter(Todo.user_id == session['user_id'])
     return render_template('todos.html', todos=todos)
 
 
@@ -95,7 +95,7 @@ def todos_POST():
 @app.route('/todo/<id>', methods=['POST'])
 @require_login
 def todo_delete(id):
-    todo = Todo.query.get(id)
+    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
     db.session.delete(todo)
     db.session.commit()
     return redirect('/todo')
