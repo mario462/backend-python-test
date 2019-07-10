@@ -8,6 +8,23 @@ from flask import (
     session,
     flash
 )
+import functools
+
+
+def require_login(function):
+    """
+    Decorator to ensure all routes that require a logged in user share the same functionality, implemented in a
+    reusable manner. Ideally, for a real life application we would use a solution like flask_login
+    """
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        if not session.get('user_id'):
+            flash('Please login to access this page', 'danger')
+            return redirect('/login')
+        return function(*args, **kwargs)
+
+    return wrapper
 
 
 @app.route('/')
@@ -39,31 +56,31 @@ def login_POST():
 
 @app.route('/logout')
 def logout():
+    if 'user_id' in session:
+        flash('You were logged out', 'danger')
     session.pop('username', None)
     session.pop('user_id', None)
 
-    flash('You were logged out', 'danger')
     return redirect('/')
 
 
 @app.route('/todo/<id>', methods=['GET'])
+@require_login
 def todo(id):
     todo = Todo.query.get(id)
     return render_template('todo.html', todo=todo)
 
 
 @app.route('/todo/', methods=['GET'])
+@require_login
 def todos():
-    if not session.get('user_id'):
-        return redirect('/login')
     todos = Todo.query.all()
     return render_template('todos.html', todos=todos)
 
 
 @app.route('/todo/', methods=['POST'])
+@require_login
 def todos_POST():
-    if not session.get('user_id'):
-        return redirect('/login')
     try:
         todo = Todo(description=request.form.get('description', ''), user_id=session['user_id'])
         db.session.add(todo)
@@ -76,9 +93,8 @@ def todos_POST():
 
 
 @app.route('/todo/<id>', methods=['POST'])
+@require_login
 def todo_delete(id):
-    if not session.get('user_id'):
-        return redirect('/login')
     todo = Todo.query.get(id)
     db.session.delete(todo)
     db.session.commit()
