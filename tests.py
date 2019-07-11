@@ -15,7 +15,9 @@ def dbCommit(object):
 
 
 def createRandomUser():
-    return User(username=myFactory.first_name(), password=myFactory.word())
+    # We need to return the plain text password used during user creation in order to call the login function later
+    password = myFactory.word()
+    return User(username=myFactory.first_name(), password=password), password
 
 
 def createRandomTodo(user):
@@ -73,39 +75,33 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures a user can login if correct username and password are provided
         """
-        user = createRandomUser()
+        user, password = createRandomUser()
         dbCommit(user)
         assert user in db.session
         with app.test_client() as c:
-            response = login(c, user.username, user.password)
+            response = login(c, user.username, password)
             assert b'Successful login' in response.data
             response = logout(c)
             assert b'You were logged out' in response.data
             invalid_login = b'Invalid username or password'
-            response = login(c, '{}XXX'.format(user.username), user.password)
+            response = login(c, '{}XXX'.format(user.username), password)
             assert invalid_login in response.data
-            response = login(c, user.username, '{}XXX'.format(user.password))
+            response = login(c, user.username, '{}XXX'.format(password))
             assert invalid_login in response.data
 
     def testUserCreation(self):
         """
         Ensures we can create a user, but not without username or password, or if username or password are empty
         """
-        user = createRandomUser()
+        user, _ = createRandomUser()
         dbCommit(user)
         assert user in db.session
-        user = User(password=myFactory.word())
-        db.session.add(user)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
-        db.session.rollback()
+        with self.assertRaises(AssertionError):
+            User(username=None, password=myFactory.word())
         with self.assertRaises(AssertionError):
             User(password=myFactory.word(), username='')
-        user = User(username=myFactory.word())
-        db.session.add(user)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
-        db.session.rollback()
+        with self.assertRaises(AssertionError):
+            User(username=myFactory.word(), password=None)
         with self.assertRaises(AssertionError):
             User(password='', username=myFactory.word())
 
@@ -113,7 +109,7 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures we can create a todo, but not if it has an empty description or empty user
         """
-        user = createRandomUser()
+        user, _ = createRandomUser()
         dbCommit(user)
         todo = createRandomTodo(user)
         dbCommit(todo)
@@ -130,11 +126,11 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures we get correct responses from the server when creating todos
         """
-        user = createRandomUser()
+        user, password = createRandomUser()
         dbCommit(user)
         assert user in db.session
         with app.test_client() as c:
-            login(c, user.username, user.password)
+            login(c, user.username, password)
             response = create_todo(c, 'some desc', user)
             assert b'Todo was successfully created' in response.data
             response = create_todo(c, '', user)
@@ -145,9 +141,9 @@ class AlayatodoTests(unittest.TestCase):
         Ensures users can only see their todos and cannot access another user's todos by id
         """
         db.session.expire_on_commit = False
-        user = createRandomUser()
+        user, password = createRandomUser()
         db.session.add(user)
-        other_user = createRandomUser()
+        other_user, other_password = createRandomUser()
         db.session.add(other_user)
         todo = createRandomTodo(user)
         db.session.add(todo)
@@ -160,7 +156,7 @@ class AlayatodoTests(unittest.TestCase):
         other_todo_id = other_todo.id
         other_todo_desc = other_todo.description
         with app.test_client() as c:
-            login(c, user.username, user.password)
+            login(c, user.username, password)
             response = get_todos(c)
             assert my_todo_desc in response.data
             assert other_todo_desc not in response.data
@@ -178,14 +174,14 @@ class AlayatodoTests(unittest.TestCase):
         Ensures a user can mark a todo as completed and reverse it
         """
         db.session.expire_on_commit = False
-        user = createRandomUser()
+        user, password = createRandomUser()
         db.session.add(user)
         todo = createRandomTodo(user)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id
         with app.test_client() as c:
-            login(c, user.username, user.password)
+            login(c, user.username, password)
             response = update_completed_todo(c, todo_id, True)
             assert b'Todo has been marked as completed.' in response.data
             response = update_completed_todo(c, todo_id, None)
@@ -196,14 +192,14 @@ class AlayatodoTests(unittest.TestCase):
         Ensures a user can view a todo as JSON
         """
         db.session.expire_on_commit = False
-        user = createRandomUser()
+        user, password = createRandomUser()
         db.session.add(user)
         todo = createRandomTodo(user)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id
         with app.test_client() as c:
-            login(c, user.username, user.password)
+            login(c, user.username, password)
             response = json_todo(c, todo_id)
             expected = jsonify(todo.as_dict())
             assert expected.data in response.data

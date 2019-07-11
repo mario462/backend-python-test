@@ -45,15 +45,14 @@ def login():
 def login_POST():
     username = request.form.get('username')
     password = request.form.get('password')
-
-    user = db.session.query(User).filter(and_(User.username == username, User.password == password)).first()
-    if user:
-        session['username'] = user.username
-        session['user_id'] = user.id
-        flash('Successful login', 'success')
-        return redirect('/todo')
-    flash('Invalid username or password', 'danger')
-    return redirect('/login')
+    user = User.query.filter_by(username=username).first()
+    if user is None or not user.check_password(password):
+        flash('Invalid username or password', 'danger')
+        return redirect(url_for('login'))
+    session['username'] = user.username
+    session['user_id'] = user.id
+    flash('Successful login', 'success')
+    return redirect('/todo')
 
 
 @app.route('/logout')
