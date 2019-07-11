@@ -70,6 +70,7 @@ class AlayatodoTests(unittest.TestCase):
         Creates a new database for the unit test to use
         """
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        app.config['WTF_CSRF_METHODS'] = []
         db.create_all()
 
     def tearDown(self):

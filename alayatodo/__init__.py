@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 
 # configuration
 DATABASE = '/tmp/alayatodo.db'
@@ -15,5 +16,6 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+csrf = CSRFProtect(app)
 
 from alayatodo import views, models, errors

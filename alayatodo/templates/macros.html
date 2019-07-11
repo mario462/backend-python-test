@@ -1,5 +1,6 @@
 {% macro complete_todo(todo) %}
     <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input class="form-check-input" name="completed"
                type="checkbox" {{ 'checked' if todo.completed else '' }}
                onchange="this.form.submit();">
@@ -27,6 +28,7 @@
                 </div>
                 <div class="modal-footer">
                     <form style="display: inline;" method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="_method" value="DELETE"/>
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
