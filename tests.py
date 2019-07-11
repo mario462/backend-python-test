@@ -1,6 +1,7 @@
 import unittest
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
+from flask import jsonify
 
 from alayatodo import app, db
 from alayatodo.models import User, Todo
@@ -47,6 +48,10 @@ def delete_todo(client, todo_id):
 
 def update_completed_todo(client, todo_id, completed):
     return client.post('/todo/{}'.format(todo_id), data=dict(completed=completed), follow_redirects=True)
+
+
+def json_todo(client, todo_id):
+    return client.get('/todo/{}/json'.format(todo_id), follow_redirects=True)
 
 
 class AlayatodoTests(unittest.TestCase):
@@ -185,6 +190,23 @@ class AlayatodoTests(unittest.TestCase):
             assert b'Todo has been marked as completed.' in response.data
             response = update_completed_todo(c, todo_id, None)
             assert b'Todo has been marked as not completed.' in response.data
+
+    def testTodoJson(self):
+        """
+        Ensures a user can view a todo as JSON
+        """
+        db.session.expire_on_commit = False
+        user = createRandomUser()
+        db.session.add(user)
+        todo = createRandomTodo(user)
+        db.session.add(todo)
+        db.session.commit()
+        todo_id = todo.id
+        with app.test_client() as c:
+            login(c, user.username, user.password)
+            response = json_todo(c, todo_id)
+            expected = jsonify(todo.as_dict())
+            assert expected.data in response.data
 
 
 if __name__ == '__main__':

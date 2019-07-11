@@ -6,7 +6,8 @@ from flask import (
     render_template,
     request,
     session,
-    flash
+    flash,
+    jsonify
 )
 import functools
 
@@ -107,3 +108,10 @@ def todo_update(id):
         db.session.add(todo)
     db.session.commit()
     return redirect('/todo')
+
+
+@app.route('/todo/<id>/json', methods=['GET'])
+@require_login
+def todo_json(id):
+    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
+    return jsonify(todo.as_dict())

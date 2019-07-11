@@ -27,6 +27,9 @@ class Todo(db.Model):
     def __repr__(self):
         return '<Todo {}>'.format(self.description)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
     @validates('description')
     def validates_presence(self, _, field):
         assert field is not None, 'Description cannot be None'
