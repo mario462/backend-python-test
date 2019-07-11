@@ -5,14 +5,23 @@
         <h1>Todo:</h1>
         <table class="table table-striped">
             <th>Description</th>
+            <th>Completed</th>
             <th></th>
             <tr>
-                <td>{{ todo.description }}</td>
+                <td>
+                    {% if todo.completed %}
+                        <s>{{ todo.description }}</s>
+                    {% else %}
+                        {{ todo.description }}
+                    {% endif %}
+                </td>
                 <td style="text-align: center">
-                    <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
-                        <button type="submit" class="btn btn-xs btn-danger"><span
-                                class="glyphicon glyphicon-remove glyphicon-white"></span></button>
-                    </form>
+                    {% from 'macros.html' import complete_todo %}
+                    {{ complete_todo(todo) }}
+                </td>
+                <td style="text-align: center">
+                    {% from 'macros.html' import delete_todo %}
+                    {{ delete_todo(todo) }}
                 </td>
             </tr>
         </table>

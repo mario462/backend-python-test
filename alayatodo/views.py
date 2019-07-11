@@ -94,8 +94,16 @@ def todos_POST():
 
 @app.route('/todo/<id>', methods=['POST'])
 @require_login
-def todo_delete(id):
+def todo_update(id):
     todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
-    db.session.delete(todo)
+    if request.form.get('_method', '').upper() == 'DELETE':
+        flash('Todo has been deleted.', 'danger')
+        db.session.delete(todo)
+    else:
+        completed = request.form.get('completed') is not None
+        todo.completed = completed
+        flash('Todo has been marked as {}completed.'.format('' if
+                                                            completed else 'not '), 'success')
+        db.session.add(todo)
     db.session.commit()
     return redirect('/todo')

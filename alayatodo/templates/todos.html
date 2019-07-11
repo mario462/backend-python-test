@@ -6,30 +6,39 @@
         <table class="table table-striped">
             <th>#</th>
             <th>Description</th>
+            <th>Completed</th>
             <th></th>
             {% for todo in todos %}
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>
-                        <a href="{{ url_for('todo', id=todo.id) }}">
-                            {{ todo.description }}
-                        </a>
+                        {% if todo.completed %}
+                            <s><a href="{{ url_for('todo', id=todo.id) }}">
+                                {{ todo.description }}
+                            </a></s>
+                        {% else %}
+                            <a href="{{ url_for('todo', id=todo.id) }}">
+                                {{ todo.description }}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center">
+                        {% from 'macros.html' import complete_todo %}
+                        {{ complete_todo(todo) }}
                     </td>
                     <td style="text-align: center;">
-                        <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
-                            <button type="submit" class="btn btn-xs btn-danger"><span
-                                    class="glyphicon glyphicon-remove glyphicon-white"></span></button>
-                        </form>
+                        {% from 'macros.html' import delete_todo %}
+                        {{ delete_todo(todo) }}
                     </td>
                 </tr>
             {% endfor %}
             <tr>
                 <form method="post" action="{{ url_for('todos_POST') }}">
-                    <td colspan="2">
+                    <td colspan="3">
                         <input type="textbox" name="description" style="width: 100%"
                                placeholder="Description...">
                     </td>
-                    <td style="text-align: center;">
+                    <td colspan="2" style="text-align: center;">
                         <button type="submit" class="btn btn-sm btn-primary">Add</button>
                     </td>
                 </form>

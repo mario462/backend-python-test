@@ -21,6 +21,7 @@ class User(db.Model):
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(255), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, server_default='0')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
