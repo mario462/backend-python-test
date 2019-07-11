@@ -56,6 +56,10 @@ def json_todo(client, todo_id):
     return client.get('/todo/{}/json'.format(todo_id), follow_redirects=True)
 
 
+def visit_login(client):
+    return client.get('/login', follow_redirects=True)
+
+
 class AlayatodoTests(unittest.TestCase):
     def setUp(self):
         """
@@ -203,6 +207,20 @@ class AlayatodoTests(unittest.TestCase):
             response = json_todo(c, todo_id)
             expected = jsonify(todo.as_dict())
             assert expected.data in response.data
+
+    def testRedirectLoggedInUser(self):
+        """
+        Ensures a logged in user should be redirected to his todo list when trying to access the login page
+        """
+        user, password = createRandomUser()
+        db.session.add(user)
+        db.session.commit()
+        with app.test_client() as c:
+            response = visit_login(c)
+            assert b'Login' in response.data
+            login(c, user.username, password)
+            response = visit_login(c)
+            assert b'Todo List' in response.data
 
 
 if __name__ == '__main__':

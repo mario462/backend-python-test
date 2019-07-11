@@ -38,7 +38,10 @@ def home():
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html')
+    if not session.get('user_id'):
+        return render_template('login.html')
+    else:
+        return redirect(url_for('todos'))
 
 
 @app.route('/login', methods=['POST'])
