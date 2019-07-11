@@ -124,10 +124,21 @@ def todo_update(todo_id):
 
 
 @app.route('/todo/<todo_id>/json', methods=['GET'])
-@require_login
 def todo_json(todo_id):
-    todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
-    return jsonify(todo.as_dict())
+    status = 200
+    message = 'Success'
+    data = {}
+    if not session.get('user_id'):
+        status = 401
+        message = 'Please login to access this page.'
+    else:
+        todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first()
+        if todo is None:
+            status = 404
+            message = 'File not found.'
+        else:
+            data = todo.as_dict()
+    return jsonify({'status': status, 'message': message, 'todo': data})
 
 
 @app.route('/show_completed', methods=['POST'])

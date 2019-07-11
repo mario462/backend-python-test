@@ -2,6 +2,7 @@ import unittest
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from flask import jsonify
+import json
 
 from alayatodo import app, db
 from alayatodo.models import User, Todo
@@ -210,8 +211,7 @@ class AlayatodoTests(unittest.TestCase):
         with app.test_client() as c:
             login(c, user.username, password)
             response = json_todo(c, todo_id)
-            expected = jsonify(todo.as_dict())
-            assert expected.data in response.data
+            self.assertEqual(todo_id, json.loads(response.data)['todo']['id'])
 
     def testRedirectLoggedInUser(self):
         """
