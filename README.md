@@ -13,13 +13,13 @@ Credentials:
 * password: **user1**
 
 #### Homepage:
-![Homepage](/static/web/img/homepage.png?raw=true "Homepage")
+![Homepage](/web/img/homepage.png?raw=true "Homepage")
 
 #### Login page:
-![Login page](/static/web/img/login-page.png?raw=true "Login page")
+![Login page](/web/img/login-page.png?raw=true "Login page")
 
 #### Todos:
-![Todos](/static/web/img/todos.png?raw=true "Todos")
+![Todos](/web/img/todos.png?raw=true "Todos")
 
 ### Requirements
 * python 5.7
@@ -71,18 +71,18 @@ This app use [Flask](http://flask.pocoo.org/docs/0.10/).
 ### How to submit your work?
 
 1. ##### First you need to fork this repository.
-![Forking a repo](/static/web/img/fork.png?raw=true "Forking a repo")
+![Forking a repo](/web/img/fork.png?raw=true "Forking a repo")
 
 2. ##### Then clone your fork locally.
-![Cloning a repo](/static/web/img/clone.png?raw=true "Cloning a repo")
+![Cloning a repo](/web/img/clone.png?raw=true "Cloning a repo")
 
 3. ##### Install the app locally. See the [Installation Guide] (#Installation).
 
 4. ##### Once you've completed your work, you can submit a pull-request to the remote repository.
-![ a Pull Request](/static/web/img/pull-request.png?raw=true "Creating a Pull Request")
+![ a Pull Request](/web/img/pull-request.png?raw=true "Creating a Pull Request")
 
 5. ##### Review your changes and validate.
-![Validating a Pull Request](/static/web/img/pull-request-review.png?raw=true "Validating a Pull Request")
+![Validating a Pull Request](/web/img/pull-request-review.png?raw=true "Validating a Pull Request")
 
 
 

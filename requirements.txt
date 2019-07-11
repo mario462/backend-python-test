@@ -4,5 +4,4 @@ docopt
 Flask-SQLAlchemy
 Flask-Migrate
 faker
-markdown
 Flask-WTF

@@ -1,7 +1,6 @@
 from alayatodo import app, db
 from alayatodo.models import User, Todo
 import json
-import markdown
 from flask import (
     redirect,
     render_template,
@@ -10,8 +9,7 @@ from flask import (
     flash,
     jsonify,
     url_for,
-    make_response,
-    Markup
+    make_response
 )
 import functools
 
@@ -35,8 +33,8 @@ def require_login(function):
 @app.route('/')
 def home():
     with app.open_resource('../README.md', mode='r') as f:
-        readme = markdown.markdown(f.read().decode('utf-8'))
-        return render_template('index.html', readme=Markup(readme))
+        readme = "".join(l.decode('utf-8') for l in f)
+        return render_template('index.html', readme=readme)
 
 
 @app.route('/login', methods=['GET'])
