@@ -1,6 +1,6 @@
 from alayatodo import app, db
 from alayatodo.models import User, Todo
-from sqlalchemy import and_
+import json
 from flask import (
     redirect,
     render_template,
@@ -8,7 +8,8 @@ from flask import (
     session,
     flash,
     jsonify,
-    url_for
+    url_for,
+    make_response
 )
 import functools
 
@@ -80,8 +81,17 @@ def todo(id):
 def todos():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', app.config['TODOS_PER_PAGE'], type=int)
-    todos = db.session.query(Todo).filter(Todo.user_id == session['user_id']).paginate(page, per_page, False)
-    return render_template('todos.html', todos=todos, per_page=per_page)
+    showing = request.cookies.get('show_completed')
+    user_id = session['user_id']
+    if showing is not None:
+        showing = json.loads(showing)
+        showing = str(user_id) in showing
+    todos = db.session.query(Todo).filter(Todo.user_id == user_id).order_by(Todo.completed)
+    if not showing:
+        todos = todos.filter(Todo.completed != True)
+    todos = todos.paginate(page, per_page, False)
+    return render_template('todos.html', todos=todos, per_page=per_page,
+                           show_completed=showing)
 
 
 @app.route('/todo/', methods=['POST'])
@@ -120,3 +130,23 @@ def todo_update(id):
 def todo_json(id):
     todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
     return jsonify(todo.as_dict())
+
+
+@app.route('/show_completed', methods=['POST'])
+@require_login
+def show_completed():
+    show = request.form.get('show_completed') is not None
+    flash('{} completed todos.'.format('Showing' if show else 'Hiding'), 'success')
+    resp = make_response(redirect(url_for('todos')))
+    cookie = request.cookies.get('show_completed')
+    if cookie is not None:
+        showing = json.loads(cookie)
+    else:
+        showing = {}
+    user_id = str(session['user_id'])
+    if show and user_id not in showing:
+        showing[user_id] = 'True'
+    else:
+        showing.pop(user_id, None)
+    resp.set_cookie('show_completed', json.dumps(showing))
+    return resp

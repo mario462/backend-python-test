@@ -60,6 +60,10 @@ def visit_login(client):
     return client.get('/login', follow_redirects=True)
 
 
+def show_completed(client, show):
+    return client.post('/show_completed', data=dict(show_completed=show), follow_redirects=True)
+
+
 class AlayatodoTests(unittest.TestCase):
     def setUp(self):
         """
@@ -221,6 +225,30 @@ class AlayatodoTests(unittest.TestCase):
             login(c, user.username, password)
             response = visit_login(c)
             assert b'Todo List' in response.data
+
+    def testHideCompletedTodo(self):
+        """
+        Ensures completed todos are hidden if option selected
+        """
+        db.session.expire_on_commit = False
+        user, password = createRandomUser()
+        db.session.add(user)
+        db.session.commit()
+        todo = createRandomTodo(user)
+        db.session.add(todo)
+        db.session.commit()
+        todo_id = todo.id
+        todo_desc = todo.description
+        with app.test_client() as c:
+            login(c, user.username, password)
+            response = get_todos(c)
+            assert todo.description in response.data
+            update_completed_todo(c, todo_id, True)
+            response = get_todos(c)
+            assert todo_desc not in response.data
+            show_completed(c, True)
+            response = get_todos(c)
+            assert todo_desc in response.data
 
 
 if __name__ == '__main__':

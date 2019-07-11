@@ -44,6 +44,12 @@
                 </form>
             </tr>
         </table>
+        <form method="post" action="{{ url_for('show_completed') }}">
+            <input class="form-check-input" name="show_completed" id="show_completed"
+                   type="checkbox" {{ 'checked' if show_completed else '' }}
+                   onchange="this.form.submit();">
+            <label for="show_completed"><i>Show completed todos</i></label>
+        </form>
         <nav aria-label="Page navigation" style="text-align: center">
             <ul class="pagination justify-content-center">
                 {% if todos.has_prev %}
