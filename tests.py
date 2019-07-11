@@ -9,18 +9,18 @@ from alayatodo.models import User, Todo
 myFactory = Faker()
 
 
-def dbCommit(object):
-    db.session.add(object)
+def db_commit(model):
+    db.session.add(model)
     db.session.commit()
 
 
-def createRandomUser():
+def create_random_user():
     # We need to return the plain text password used during user creation in order to call the login function later
     password = myFactory.word()
     return User(username=myFactory.first_name(), password=password), password
 
 
-def createRandomTodo(user):
+def create_random_todo(user):
     return Todo(description=myFactory.text(), user=user)
 
 
@@ -83,8 +83,8 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures a user can login if correct username and password are provided
         """
-        user, password = createRandomUser()
-        dbCommit(user)
+        user, password = create_random_user()
+        db_commit(user)
         assert user in db.session
         with app.test_client() as c:
             response = login(c, user.username, password)
@@ -101,8 +101,8 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures we can create a user, but not without username or password, or if username or password are empty
         """
-        user, _ = createRandomUser()
-        dbCommit(user)
+        user, _ = create_random_user()
+        db_commit(user)
         assert user in db.session
         with self.assertRaises(AssertionError):
             User(username=None, password=myFactory.word())
@@ -117,10 +117,10 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures we can create a todo, but not if it has an empty description or empty user
         """
-        user, _ = createRandomUser()
-        dbCommit(user)
-        todo = createRandomTodo(user)
-        dbCommit(todo)
+        user, _ = create_random_user()
+        db_commit(user)
+        todo = create_random_todo(user)
+        db_commit(todo)
         assert todo in db.session
         with self.assertRaises(AssertionError):
             Todo(description='', user=user)
@@ -134,8 +134,8 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures we get correct responses from the server when creating todos
         """
-        user, password = createRandomUser()
-        dbCommit(user)
+        user, password = create_random_user()
+        db_commit(user)
         assert user in db.session
         with app.test_client() as c:
             login(c, user.username, password)
@@ -149,13 +149,13 @@ class AlayatodoTests(unittest.TestCase):
         Ensures users can only see their todos and cannot access another user's todos by id
         """
         db.session.expire_on_commit = False
-        user, password = createRandomUser()
+        user, password = create_random_user()
         db.session.add(user)
-        other_user, other_password = createRandomUser()
+        other_user, other_password = create_random_user()
         db.session.add(other_user)
-        todo = createRandomTodo(user)
+        todo = create_random_todo(user)
         db.session.add(todo)
-        other_todo = createRandomTodo(other_user)
+        other_todo = create_random_todo(other_user)
         db.session.add(other_todo)
         db.session.commit()
 
@@ -182,9 +182,9 @@ class AlayatodoTests(unittest.TestCase):
         Ensures a user can mark a todo as completed and reverse it
         """
         db.session.expire_on_commit = False
-        user, password = createRandomUser()
+        user, password = create_random_user()
         db.session.add(user)
-        todo = createRandomTodo(user)
+        todo = create_random_todo(user)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id
@@ -200,9 +200,9 @@ class AlayatodoTests(unittest.TestCase):
         Ensures a user can view a todo as JSON
         """
         db.session.expire_on_commit = False
-        user, password = createRandomUser()
+        user, password = create_random_user()
         db.session.add(user)
-        todo = createRandomTodo(user)
+        todo = create_random_todo(user)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id
@@ -216,7 +216,7 @@ class AlayatodoTests(unittest.TestCase):
         """
         Ensures a logged in user should be redirected to his todo list when trying to access the login page
         """
-        user, password = createRandomUser()
+        user, password = create_random_user()
         db.session.add(user)
         db.session.commit()
         with app.test_client() as c:
@@ -231,10 +231,10 @@ class AlayatodoTests(unittest.TestCase):
         Ensures completed todos are hidden if option selected
         """
         db.session.expire_on_commit = False
-        user, password = createRandomUser()
+        user, password = create_random_user()
         db.session.add(user)
         db.session.commit()
-        todo = createRandomTodo(user)
+        todo = create_random_todo(user)
         db.session.add(todo)
         db.session.commit()
         todo_id = todo.id

@@ -26,7 +26,7 @@ def require_login(function):
     def wrapper(*args, **kwargs):
         if not session.get('user_id'):
             flash('Please login to access this page', 'danger')
-            return redirect('/login')
+            return redirect(url_for('login'))
         return function(*args, **kwargs)
 
     return wrapper
@@ -43,12 +43,11 @@ def home():
 def login():
     if not session.get('user_id'):
         return render_template('login.html')
-    else:
-        return redirect(url_for('todos'))
+    return redirect(url_for('todos'))
 
 
 @app.route('/login', methods=['POST'])
-def login_POST():
+def login_post():
     username = request.form.get('username')
     password = request.form.get('password')
     user = User.query.filter_by(username=username).first()
@@ -58,7 +57,7 @@ def login_POST():
     session['username'] = user.username
     session['user_id'] = user.id
     flash('Successful login', 'success')
-    return redirect('/todo')
+    return redirect(url_for('todos'))
 
 
 @app.route('/logout')
@@ -67,14 +66,13 @@ def logout():
         flash('You were logged out', 'danger')
     session.pop('username', None)
     session.pop('user_id', None)
+    return redirect(url_for('home'))
 
-    return redirect('/')
 
-
-@app.route('/todo/<id>', methods=['GET'])
+@app.route('/todo/<todo_id>', methods=['GET'])
 @require_login
-def todo(id):
-    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
+def todo(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
     return render_template('todo.html', todo=todo)
 
 
@@ -88,17 +86,16 @@ def todos():
     if showing is not None:
         showing = json.loads(showing)
         showing = str(user_id) in showing
-    todos = db.session.query(Todo).filter(Todo.user_id == user_id).order_by(Todo.completed)
+    todos = db.session.query(Todo).filter(Todo.user_id == user_id).order_by(Todo.completed.asc(), Todo.id.desc())
     if not showing:
         todos = todos.filter(Todo.completed != True)
     todos = todos.paginate(page, per_page, False)
-    return render_template('todos.html', todos=todos, per_page=per_page,
-                           show_completed=showing)
+    return render_template('todos.html', todos=todos, per_page=per_page, show_completed=showing)
 
 
 @app.route('/todo/', methods=['POST'])
 @require_login
-def todos_POST():
+def todos_post():
     try:
         todo = Todo(description=request.form.get('description', ''), user_id=session['user_id'])
         db.session.add(todo)
@@ -107,30 +104,29 @@ def todos_POST():
     except AssertionError:
         db.session.rollback()
         flash('Todo description cannot be empty', 'danger')
-    return redirect('/todo')
+    return redirect(url_for('todos'))
 
 
-@app.route('/todo/<id>', methods=['POST'])
+@app.route('/todo/<todo_id>', methods=['POST'])
 @require_login
-def todo_update(id):
-    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
+def todo_update(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
     if request.form.get('_method', '').upper() == 'DELETE':
         flash('Todo has been deleted.', 'danger')
         db.session.delete(todo)
     else:
         completed = request.form.get('completed') is not None
         todo.completed = completed
-        flash('Todo has been marked as {}completed.'.format('' if
-                                                            completed else 'not '), 'success')
+        flash('Todo has been marked as {}completed.'.format('' if completed else 'not '), 'success')
         db.session.add(todo)
     db.session.commit()
-    return redirect('/todo')
+    return redirect(url_for('todos'))
 
 
-@app.route('/todo/<id>/json', methods=['GET'])
+@app.route('/todo/<todo_id>/json', methods=['GET'])
 @require_login
-def todo_json(id):
-    todo = db.session.query(Todo).filter(Todo.id == id, Todo.user_id == session['user_id']).first_or_404()
+def todo_json(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
     return jsonify(todo.as_dict())
 
 
@@ -140,15 +136,14 @@ def show_completed():
     show = request.form.get('show_completed') is not None
     flash('{} completed todos.'.format('Showing' if show else 'Hiding'), 'success')
     resp = make_response(redirect(url_for('todos')))
+    showing = {}
     cookie = request.cookies.get('show_completed')
     if cookie is not None:
         showing = json.loads(cookie)
-    else:
-        showing = {}
     user_id = str(session['user_id'])
     if show and user_id not in showing:
         showing[user_id] = 'True'
     else:
-        showing.pop(user_id, None)
+        showing.pop(user_id)
     resp.set_cookie('show_completed', json.dumps(showing))
     return resp

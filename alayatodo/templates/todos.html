@@ -13,11 +13,11 @@
                     <td>{{ loop.index + (todos.page - 1) * per_page }}</td>
                     <td>
                         {% if todo.completed %}
-                            <s><a href="{{ url_for('todo', id=todo.id) }}">
+                            <s><a href="{{ url_for('todo', todo_id=todo.id) }}">
                                 {{ todo.description }}
                             </a></s>
                         {% else %}
-                            <a href="{{ url_for('todo', id=todo.id) }}">
+                            <a href="{{ url_for('todo', todo_id=todo.id) }}">
                                 {{ todo.description }}
                             </a>
                         {% endif %}
@@ -33,7 +33,7 @@
                 </tr>
             {% endfor %}
             <tr>
-                <form method="post" action="{{ url_for('todos_POST') }}">
+                <form method="post" action="{{ url_for('todos_post') }}">
                     <td colspan="3">
                         <input type="textbox" name="description" style="width: 100%"
                                placeholder="Description...">

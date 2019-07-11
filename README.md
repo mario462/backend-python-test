@@ -36,6 +36,11 @@ bin/python main.py initdb
 bin/python main.py
 ```
 
+#### Running the tests
+```sh
+bin/python tests.py
+```
+
 ### Instructions
 
 You will be asked to improve the code of this app with the following tasks.

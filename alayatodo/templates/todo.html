@@ -25,7 +25,6 @@
                 </td>
             </tr>
         </table>
-        <a href="{{ url_for('todo_json', id=todo.id) }}" class="btn btn-sm btn-primary">View as JSON</a>
+        <a href="{{ url_for('todo_json', todo_id=todo.id) }}" class="btn btn-sm btn-primary">View as JSON</a>
     </div>
-
 {% endblock %}

@@ -1,9 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import os
-
-basedir = os.path.abspath(os.path.dirname(__file__))
 
 # configuration
 DATABASE = '/tmp/alayatodo.db'

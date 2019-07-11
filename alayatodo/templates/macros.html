@@ -1,5 +1,5 @@
 {% macro complete_todo(todo) %}
-    <form method="post" action="{{ url_for('todo_update', id=todo.id) }}">
+    <form method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
         <input class="form-check-input" name="completed"
                type="checkbox" {{ 'checked' if todo.completed else '' }}
                onchange="this.form.submit();">
@@ -26,7 +26,7 @@
                     <p>Are you sure you want to delete this todo? You cannot recover it later.</p>
                 </div>
                 <div class="modal-footer">
-                    <form style="display: inline;" method="post" action="{{ url_for('todo_update', id=todo.id) }}">
+                    <form style="display: inline;" method="post" action="{{ url_for('todo_update', todo_id=todo.id) }}">
                         <input type="hidden" name="_method" value="DELETE"/>
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
