@@ -7,7 +7,8 @@ from flask import (
     request,
     session,
     flash,
-    jsonify
+    jsonify,
+    url_for
 )
 import functools
 
@@ -75,8 +76,10 @@ def todo(id):
 @app.route('/todo/', methods=['GET'])
 @require_login
 def todos():
-    todos = db.session.query(Todo).filter(Todo.user_id == session['user_id'])
-    return render_template('todos.html', todos=todos)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', app.config['TODOS_PER_PAGE'], type=int)
+    todos = db.session.query(Todo).filter(Todo.user_id == session['user_id']).paginate(page, per_page, False)
+    return render_template('todos.html', todos=todos, per_page=per_page)
 
 
 @app.route('/todo/', methods=['POST'])

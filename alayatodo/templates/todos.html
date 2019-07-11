@@ -8,9 +8,9 @@
             <th>Description</th>
             <th>Completed</th>
             <th></th>
-            {% for todo in todos %}
+            {% for todo in todos.items %}
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td>{{ loop.index + (todos.page - 1) * per_page }}</td>
                     <td>
                         {% if todo.completed %}
                             <s><a href="{{ url_for('todo', id=todo.id) }}">
@@ -44,5 +44,40 @@
                 </form>
             </tr>
         </table>
+        <nav aria-label="Page navigation" style="text-align: center">
+            <ul class="pagination justify-content-center">
+                {% if todos.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('todos', page=todos.prev_num, per_page=per_page) }}">&lsaquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
+                {% endif %}
+                {% for page in todos.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+                    {% if page %}
+                        {% if page == todos.page %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">{{ todos.page }} <span
+                                        class="sr-only">(current)</span></a>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="{{ url_for('todos', page=page, per_page=per_page) }}">{{ page }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li><span class="ellipsis">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if todos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('todos', page=todos.next_num, per_page=per_page) }}">&rsaquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
 {% endblock %}

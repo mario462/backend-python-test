@@ -12,6 +12,7 @@ SECRET_KEY = 'development key'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(DATABASE)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 FLASK_APP = 'alayatodo.py'
+TODOS_PER_PAGE = 10
 
 app = Flask(__name__)
 app.config.from_object(__name__)
