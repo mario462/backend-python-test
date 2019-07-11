@@ -19,4 +19,4 @@ app.config.from_object(__name__)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from alayatodo import views, models
+from alayatodo import views, models, errors
