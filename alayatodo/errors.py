@@ -1,6 +1,7 @@
 from flask import render_template
-from alayatodo import app, db
 from flask_wtf.csrf import CSRFError
+
+from alayatodo import app, db
 
 
 @app.errorhandler(404)

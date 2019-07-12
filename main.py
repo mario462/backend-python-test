@@ -4,8 +4,9 @@ Usage:
   main.py [run]
   main.py initdb
 """
-from docopt import docopt
 import json
+
+from docopt import docopt
 from flask_migrate import upgrade
 from sqlalchemy.exc import IntegrityError
 

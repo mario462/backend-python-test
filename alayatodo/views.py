@@ -1,6 +1,6 @@
-from alayatodo import app, db
-from alayatodo.models import User, Todo
+import functools
 import json
+
 from flask import (
     redirect,
     render_template,
@@ -11,7 +11,9 @@ from flask import (
     url_for,
     make_response
 )
-import functools
+
+from alayatodo import app, db
+from alayatodo.models import User, Todo
 
 
 def require_login(function):

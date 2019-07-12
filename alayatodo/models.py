@@ -1,7 +1,8 @@
-from alayatodo import db
+from marshmallow_sqlalchemy import ModelSchema
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow_sqlalchemy import ModelSchema
+
+from alayatodo import db
 
 
 class User(db.Model):

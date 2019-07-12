@@ -1,7 +1,8 @@
-import unittest
-from sqlalchemy.exc import IntegrityError
-from faker import Faker
 import json
+import unittest
+
+from faker import Faker
+from sqlalchemy.exc import IntegrityError
 
 from alayatodo import app, db
 from alayatodo.models import User, Todo
