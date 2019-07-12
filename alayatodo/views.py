@@ -67,7 +67,7 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/todo/<todo_id>', methods=['GET'])
+@app.route('/todo/<int:todo_id>', methods=['GET'])
 @require_login
 def todo(todo_id):
     todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
@@ -106,7 +106,7 @@ def todos_post():
     return redirect(url_for('todos'))
 
 
-@app.route('/todo/<todo_id>', methods=['POST'])
+@app.route('/todo/<int:todo_id>', methods=['POST'])
 @require_login
 def todo_update(todo_id):
     todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
@@ -118,7 +118,7 @@ def todo_update(todo_id):
     return redirect(url_for('todos'))
 
 
-@app.route('/todo/<todo_id>', methods=['DELETE'])
+@app.route('/todo/<int:todo_id>', methods=['DELETE'])
 @require_login
 def todo_delete(todo_id):
     todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first()
@@ -134,7 +134,7 @@ def todo_delete(todo_id):
     return jsonify({'status': status, 'message': message}), status
 
 
-@app.route('/todo/<todo_id>/json', methods=['GET'])
+@app.route('/todo/<int:todo_id>/json', methods=['GET'])
 def todo_json(todo_id):
     status = 200
     message = 'Success'
