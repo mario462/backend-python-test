@@ -137,7 +137,7 @@ def todo_json(todo_id):
             message = 'File not found.'
         else:
             data = todo.as_dict()
-    return jsonify({'status': status, 'message': message, 'todo': data})
+    return jsonify({'status': status, 'message': message, 'todo': data}), status
 
 
 @app.route('/show_completed', methods=['POST'])

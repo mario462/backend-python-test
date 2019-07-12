@@ -5,11 +5,10 @@ Usage:
   main.py initdb
 """
 from docopt import docopt
-import os
 import json
-import subprocess
+from flask_migrate import upgrade
 
-from alayatodo import app, db, models, FLASK_APP
+from alayatodo import app, db, models
 
 
 def seed(path):
@@ -29,22 +28,14 @@ def seed(path):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    flask_app_variable = 'FLASK_APP'
-    # flask db commands rely on FLASK_APP environment variable to be set.
-    # Ideally, we would use something like dotenv to set this
-    if flask_app_variable not in os.environ:
-        os.environ[flask_app_variable] = FLASK_APP
     seeds_file_path = 'resources/seeds.json'
-    # Using subprocess to call external flask database manipulation commands.
     if args['initdb']:
-        db_init_command = ['flask', 'db', 'init']
-        print('Initializing database. Calling ${}'.format(' '.join(db_init_command)))
-        subprocess.call(db_init_command)
-        db_upgrade_command = ['flask', 'db', 'upgrade']
-        print('Running pending migrations. Calling ${}'.format(' '.join(db_upgrade_command)))
-        subprocess.call(db_upgrade_command)
-        print('Seeding database with initial values. You can find initial values in {}'.format(seeds_file_path))
-        seed(seeds_file_path)
-        print('All done, database initialized.')
+        with app.app_context():
+            print('Initializing database.')
+            print('Running pending migrations with $flask db upgrade')
+            upgrade()
+            print('Seeding database with initial values. You can find initial values in {}'.format(seeds_file_path))
+            seed(seeds_file_path)
+            print('All done, database initialized.')
     else:
         app.run(use_reloader=True)
