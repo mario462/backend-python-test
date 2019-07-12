@@ -7,6 +7,7 @@ Usage:
 from docopt import docopt
 import json
 from flask_migrate import upgrade
+from sqlalchemy.exc import IntegrityError
 
 from alayatodo import app, db, models
 
@@ -21,7 +22,13 @@ def seed(path):
                 for todo in user['todos']:
                     new_todo = models.Todo(description=todo['description'], user=new_user)
                     db.session.add(new_todo)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError:
+                print(
+                    'WARNING: Database was already initialized. Make sure you delete {} before running initdb.'.format(
+                        app.config['DATABASE']))
+                db.session.rollback()
     except IOError:
         print('Seeds file not found, make sure {} exists.'.format(path))
 
