@@ -81,10 +81,10 @@ def todos():
     per_page = request.args.get('per_page', app.config['TODOS_PER_PAGE'], type=int)
     show_completed_cookie = request.cookies.get('show_completed')
     user_showing = False
-    user_id = session['user_id']
+    user_id = session.get('user_id')
     if show_completed_cookie is not None:
         show_completed_cookie = json.loads(show_completed_cookie)
-        user_showing = str(user_id) in show_completed_cookie
+        user_showing = user_id in show_completed_cookie
     todos = db.session.query(Todo).filter(Todo.user_id == user_id).order_by(Todo.completed.asc(), Todo.id.desc())
     if not user_showing:
         todos = todos.filter(Todo.completed != True)
@@ -155,17 +155,17 @@ def todo_json(todo_id):
 @app.route('/show_completed', methods=['POST'])
 @require_login
 def show_completed():
-    show = request.form.get('show_completed') is not None
-    flash('{} completed todos.'.format('Showing' if show else 'Hiding'), 'success')
+    should_show = request.form.get('show_completed') is not None
+    flash('{} completed todos.'.format('Showing' if should_show else 'Hiding'), 'success')
     resp = make_response(redirect(url_for('todos')))
-    showing = {}
+    showing = []
     cookie = request.cookies.get('show_completed')
     if cookie is not None:
         showing = json.loads(cookie)
-    user_id = str(session['user_id'])
-    if show and user_id not in showing:
-        showing[user_id] = 'True'
-    else:
-        showing.pop(user_id)
+    user_id = session.get('user_id')
+    if should_show and user_id not in showing:
+        showing.append(user_id)
+    elif not should_show and user_id in showing:
+        showing.remove(user_id)
     resp.set_cookie('show_completed', json.dumps(showing))
     return resp
