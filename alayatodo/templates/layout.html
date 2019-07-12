@@ -54,6 +54,21 @@
     $(".alert").delay(2000).slideUp(500, function () {
         $(".alert").alert('close');
     });
+
+    $('.delete-form').on('submit', function (event) {
+        event.preventDefault();
+        let url = event.target.dataset.url;
+        let csrfToken = event.target.dataset.csrf_token;
+        $.ajax({
+            url: url,
+            beforeSend: function (request) {
+                request.setRequestHeader('X-CSRFToken', csrfToken);
+            },
+            type: 'DELETE'
+        }).complete(function () {
+            location.reload();
+        });
+    });
 </script>
 </body>
 </html>

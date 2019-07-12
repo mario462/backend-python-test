@@ -46,7 +46,7 @@ def get_todo(client, todo_id):
 
 
 def delete_todo(client, todo_id):
-    return client.post('/todo/{}'.format(todo_id), data=dict(_method='DELETE'), follow_redirects=True)
+    return client.delete('/todo/{}'.format(todo_id), follow_redirects=True)
 
 
 def update_completed_todo(client, todo_id, completed):
@@ -250,6 +250,24 @@ class AlayatodoTests(unittest.TestCase):
             show_completed(c, True)
             response = get_todos(c)
             assert todo_desc in response.data
+
+    def testDeleteTodo(self):
+        db.session.expire_on_commit = False
+        user, password = create_random_user()
+        db.session.add(user)
+        db.session.commit()
+        todo = create_random_todo(user)
+        db.session.add(todo)
+        db.session.commit()
+        todo_id = todo.id
+        todo_desc = todo.description
+        with app.test_client() as c:
+            login(c, user.username, password)
+            response = get_todos(c)
+            assert todo.description in response.data
+            delete_todo(c, todo_id)
+            response = get_todos(c)
+            assert todo_desc not in response.data
 
 
 if __name__ == '__main__':

@@ -110,16 +110,28 @@ def todos_post():
 @require_login
 def todo_update(todo_id):
     todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first_or_404()
-    if request.form.get('_method', '').upper() == 'DELETE':
-        flash('Todo has been deleted.', 'danger')
-        db.session.delete(todo)
-    else:
-        completed = request.form.get('completed') is not None
-        todo.completed = completed
-        flash('Todo has been marked as {}completed.'.format('' if completed else 'not '), 'success')
-        db.session.add(todo)
+    completed = request.form.get('completed') is not None
+    todo.completed = completed
+    flash('Todo has been marked as {}completed.'.format('' if completed else 'not '), 'success')
+    db.session.add(todo)
     db.session.commit()
     return redirect(url_for('todos'))
+
+
+@app.route('/todo/<todo_id>', methods=['DELETE'])
+@require_login
+def todo_delete(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id, Todo.user_id == session['user_id']).first()
+    status = 200
+    message = 'Todo has been deleted.'
+    if todo is None:
+        status = 404
+        message = 'That todo does not exist.'
+    else:
+        db.session.delete(todo)
+        db.session.commit()
+    flash(message, 'danger')
+    return jsonify({'status': status, 'message': message}), status
 
 
 @app.route('/todo/<todo_id>/json', methods=['GET'])
