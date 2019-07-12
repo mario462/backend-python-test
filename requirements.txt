@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 Flask-Migrate
 faker
 Flask-WTF
+marshmallow-sqlalchemy

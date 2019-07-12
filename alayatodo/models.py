@@ -1,6 +1,7 @@
 from alayatodo import db
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
+from marshmallow_sqlalchemy import ModelSchema
 
 
 class User(db.Model):
@@ -41,7 +42,8 @@ class Todo(db.Model):
         return '<Todo {}>'.format(self.description)
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        todo_schema = TodoSchema()
+        return todo_schema.dump(self).data
 
     @validates('description')
     def validates_presence(self, _, field):
@@ -53,3 +55,8 @@ class Todo(db.Model):
     def validate_has_user(self, _, user):
         assert user is not None, 'Todo must belong to a user'
         return user
+
+
+class TodoSchema(ModelSchema):
+    class Meta:
+        model = Todo
