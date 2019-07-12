@@ -110,9 +110,13 @@ class AlayatodoTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             User(password=myFactory.word(), username='')
         with self.assertRaises(AssertionError):
-            User(username=myFactory.word(), password=None)
+            User(username=myFactory.first_name(), password=None)
         with self.assertRaises(AssertionError):
-            User(password='', username=myFactory.word())
+            User(password='', username=myFactory.first_name())
+        with self.assertRaises(IntegrityError):
+            same_username = User(username=user.username, password=myFactory.word())
+            db.session.add(same_username)
+            db.session.commit()
 
     def testTodoCreation(self):
         """

@@ -6,7 +6,7 @@ from marshmallow_sqlalchemy import ModelSchema
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     todos = db.relationship('Todo', backref='user', lazy='dynamic')
 
