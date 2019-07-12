@@ -79,16 +79,17 @@ def todo(todo_id):
 def todos():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', app.config['TODOS_PER_PAGE'], type=int)
-    showing = request.cookies.get('show_completed')
+    show_completed_cookie = request.cookies.get('show_completed')
+    user_showing = False
     user_id = session['user_id']
-    if showing is not None:
-        showing = json.loads(showing)
-        showing = str(user_id) in showing
+    if show_completed_cookie is not None:
+        show_completed_cookie = json.loads(show_completed_cookie)
+        user_showing = str(user_id) in show_completed_cookie
     todos = db.session.query(Todo).filter(Todo.user_id == user_id).order_by(Todo.completed.asc(), Todo.id.desc())
-    if not showing:
+    if not user_showing:
         todos = todos.filter(Todo.completed != True)
     todos = todos.paginate(page, per_page, False)
-    return render_template('todos.html', todos=todos, per_page=per_page, show_completed=showing)
+    return render_template('todos.html', todos=todos, per_page=per_page, show_completed=user_showing)
 
 
 @app.route('/todo/', methods=['POST'])
