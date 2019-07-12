@@ -23,7 +23,7 @@ def seed(path):
                     db.session.add(new_todo)
             db.session.commit()
     except IOError:
-        print('Seeds file not found, make sure {} exists.'.format(file))
+        print('Seeds file not found, make sure {} exists.'.format(path))
 
 
 if __name__ == '__main__':

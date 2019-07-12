@@ -1,7 +1,6 @@
 import unittest
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
-from flask import jsonify
 import json
 
 from alayatodo import app, db
@@ -90,10 +89,10 @@ class AlayatodoTests(unittest.TestCase):
         assert user in db.session
         with app.test_client() as c:
             response = login(c, user.username, password)
-            assert b'Successful login' in response.data
+            assert 'Successful login' in response.data
             response = logout(c)
-            assert b'You were logged out' in response.data
-            invalid_login = b'Invalid username or password'
+            assert 'You were logged out' in response.data
+            invalid_login = 'Invalid username or password'
             response = login(c, '{}XXX'.format(user.username), password)
             assert invalid_login in response.data
             response = login(c, user.username, '{}XXX'.format(password))
@@ -142,9 +141,9 @@ class AlayatodoTests(unittest.TestCase):
         with app.test_client() as c:
             login(c, user.username, password)
             response = create_todo(c, 'some desc', user)
-            assert b'Todo was successfully created' in response.data
+            assert 'Todo was successfully created' in response.data
             response = create_todo(c, '', user)
-            assert b'Todo description cannot be empty' in response.data
+            assert 'Todo description cannot be empty' in response.data
 
     def testPrivateTodos(self):
         """
@@ -193,9 +192,9 @@ class AlayatodoTests(unittest.TestCase):
         with app.test_client() as c:
             login(c, user.username, password)
             response = update_completed_todo(c, todo_id, True)
-            assert b'Todo has been marked as completed.' in response.data
+            assert 'Todo has been marked as completed.' in response.data
             response = update_completed_todo(c, todo_id, None)
-            assert b'Todo has been marked as not completed.' in response.data
+            assert 'Todo has been marked as not completed.' in response.data
 
     def testTodoJson(self):
         """
@@ -222,10 +221,10 @@ class AlayatodoTests(unittest.TestCase):
         db.session.commit()
         with app.test_client() as c:
             response = visit_login(c)
-            assert b'Login' in response.data
+            assert 'Login' in response.data
             login(c, user.username, password)
             response = visit_login(c)
-            assert b'Todo List' in response.data
+            assert 'Todo List' in response.data
 
     def testHideCompletedTodo(self):
         """
@@ -243,7 +242,7 @@ class AlayatodoTests(unittest.TestCase):
         with app.test_client() as c:
             login(c, user.username, password)
             response = get_todos(c)
-            assert todo.description in response.data
+            assert todo_desc in response.data
             update_completed_todo(c, todo_id, True)
             response = get_todos(c)
             assert todo_desc not in response.data
@@ -264,7 +263,7 @@ class AlayatodoTests(unittest.TestCase):
         with app.test_client() as c:
             login(c, user.username, password)
             response = get_todos(c)
-            assert todo.description in response.data
+            assert todo_desc in response.data
             delete_todo(c, todo_id)
             response = get_todos(c)
             assert todo_desc not in response.data

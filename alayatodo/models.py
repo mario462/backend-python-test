@@ -48,7 +48,7 @@ class Todo(db.Model):
     @validates('description')
     def validates_presence(self, _, field):
         assert field is not None, 'Description cannot be None'
-        assert len(field) > 0, 'Description cannot be empty'
+        assert len(field.strip()) > 0, 'Description cannot be empty'
         return field
 
     @validates('user')
